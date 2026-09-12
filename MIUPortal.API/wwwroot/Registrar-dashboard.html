@@ -1,0 +1,774 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIU Portal - Academic Registrar Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/lib/bootstrap-icons/bootstrap-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #0B5345;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 150;
+            transition: transform 0.3s ease;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
+            padding: 30px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+            background: #0B5345;
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+        }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+        .sidebar-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+            .sidebar-header h1 {
+                font-size: 22px;
+                margin-bottom: 5px;
+            }
+
+            .sidebar-header p {
+                font-size: 12px;
+                opacity: 0.8;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+            .sidebar-menu li {
+                margin-bottom: 10px;
+            }
+
+            .sidebar-menu a {
+                color: white;
+                text-decoration: none;
+                display: block;
+                padding: 12px 15px;
+                border-radius: 6px;
+                transition: all 0.3s;
+                cursor: pointer;
+            }
+
+                .sidebar-menu a i {
+                    margin-right: 8px;
+                }
+
+                .sidebar-menu a:hover {
+                    background: rgba(255,255,255,0.2);
+                    padding-left: 20px;
+                }
+
+                .sidebar-menu a.active {
+                    background: rgba(255,255,255,0.3);
+                    padding-left: 20px;
+                    font-weight: 600;
+                }
+
+        .logout-btn {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(255,255,255,0.2);
+        }
+
+            .logout-btn button {
+                width: 100%;
+                padding: 10px;
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: 2px solid white;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s;
+            }
+
+                .logout-btn button:hover {
+                    background: white;
+                    color: #0B5345;
+                }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .header h1 {
+                color: #0B5345;
+                font-size: 26px;
+            }
+
+        .registrar-info {
+            text-align: right;
+        }
+
+            .registrar-info p {
+                font-size: 14px;
+                color: #666;
+                margin: 3px 0;
+            }
+
+        .section {
+            display: none;
+        }
+
+            .section.active {
+                display: block;
+            }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+            .stat-card h3 {
+                color: #999;
+                font-size: 13px;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+            }
+
+            .stat-card .number {
+                font-size: 34px;
+                font-weight: bold;
+                color: #0B5345;
+            }
+
+            .stat-card.highlight .number {
+                color: #FFD54F;
+                -webkit-text-stroke: 1px #0B5345;
+            }
+
+        .content-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .section-header h2 {
+                color: #0B5345;
+                font-size: 22px;
+            }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #0B5345;
+            background: white;
+            color: #0B5345;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .filter-btn.active, .filter-btn:hover {
+                background: #0B5345;
+                color: white;
+            }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+        }
+
+            .data-table thead {
+                background: #0B5345;
+            }
+
+            .data-table th {
+                padding: 12px 15px;
+                text-align: left;
+                color: white;
+                font-weight: 600;
+            }
+
+            .data-table td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .data-table tr:hover {
+                background: #f9f9f9;
+            }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-deanapproved {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .btn-approve, .btn-reject, .btn-view {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+            margin-right: 5px;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+            .btn-approve:hover {
+                background: #218838;
+            }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+            .btn-reject:hover {
+                background: #c82333;
+            }
+
+        .btn-view {
+            background: #0B5345;
+            color: white;
+        }
+
+            .btn-view:hover {
+                background: #083c32;
+            }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+            .modal.show {
+                display: block !important;
+            }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+            .modal-header h2 {
+                color: #0B5345;
+            }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+            .close-btn:hover {
+                color: #333;
+            }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+
+            .message.show {
+                display: block;
+            }
+
+            .message.success {
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .message.error {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+        textarea.reject-reason {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        /* ===================== TIMETABLE SECTION (NEW) ===================== */
+        .upload-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+            .upload-form .full-width {
+                grid-column: 1 / -1;
+            }
+
+            .upload-form label {
+                display: block;
+                margin-bottom: 6px;
+                color: #0B5345;
+                font-weight: 600;
+                font-size: 13px;
+                text-transform: uppercase;
+            }
+
+            .upload-form select,
+            .upload-form input[type="file"] {
+                width: 100%;
+                padding: 10px 12px;
+                border: 2px solid #e0e0e0;
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: inherit;
+            }
+
+        .btn-upload {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #0B5345 0%, #1a8570 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .btn-upload:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(11, 83, 69, 0.3);
+            }
+
+            .btn-upload:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main-content {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar {
+                width: 260px;
+                transform: translateX(-100%);
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 70px 15px 20px 15px;
+            }
+
+            .data-table {
+                font-size: 12px;
+                min-width: 600px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .upload-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="bi bi-file-earmark-check"></i> MIU</h1>
+                <p>Academic Registrar Portal</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a class="menu-link active" data-section="dashboard" onclick="navigateToSection('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a class="menu-link" data-section="applications" onclick="navigateToSection('applications')"><i class="bi bi-clipboard-check"></i> Applications</a></li>
+                <li><a class="menu-link" data-section="signoff" onclick="navigateToSection('signoff')"><i class="bi bi-patch-check"></i> Results Sign-off</a></li>
+                <li><a class="menu-link" data-section="timetable" onclick="navigateToSection('timetable')"><i class="bi bi-calendar3"></i> Timetable</a></li>
+                <li><a class="menu-link" data-section="semesters" onclick="navigateToSection('semesters')"><i class="bi bi-calendar-range"></i> Semesters</a></li>
+                <li><a class="menu-link" data-section="loans" onclick="navigateToSection('loans')"><i class="bi bi-cash-coin"></i> Loan Scheme Review</a></li>
+            </ul>
+
+            <div class="logout-btn">
+                <button onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Academic Registrar Dashboard</h1>
+                <div class="registrar-info">
+                    <p id="registrarName">Welcome</p>
+                    <p>Academic Registrar</p>
+                </div>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <!-- ===================== DASHBOARD ===================== -->
+            <div id="dashboard-section" class="section active">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card highlight">
+                        <h3>Pending Review</h3>
+                        <div class="number" id="statPendingReview">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Approved (Total)</h3>
+                        <div class="number" id="statApprovedTotal">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Rejected (Total)</h3>
+                        <div class="number" id="statRejectedTotal">0</div>
+                    </div>
+                    <div class="stat-card highlight">
+                        <h3>Awaiting Sign-off</h3>
+                        <div class="number" id="statPendingSignoff">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Signed Off (Total)</h3>
+                        <div class="number" id="statSignedOffTotal">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== APPLICATIONS ===================== -->
+            <div id="applications-section" class="section">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-clipboard-check"></i> Applications Review</h2>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button class="filter-btn active" onclick="loadApplications('PENDING_REVIEW')">Pending Review</button>
+                            <button class="filter-btn" onclick="loadApplications('APPROVED')">Approved</button>
+                            <button class="filter-btn" onclick="loadApplications('REJECTED')">Rejected</button>
+                            <button class="filter-btn" onclick="loadApplications('ALL')">All</button>
+                        </div>
+                    </div>
+                    <div id="applicationsContainer">Loading applications...</div>
+                </div>
+            </div>
+
+            <!-- ===================== RESULTS SIGN-OFF ===================== -->
+            <div id="signoff-section" class="section">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-patch-check"></i> Results Awaiting Sign-off</h2>
+                        <p style="color:#666; font-size:13px;">Dean-approved results — final stage before publication.</p>
+                    </div>
+                    <div id="signoffContainer">Loading results...</div>
+                </div>
+            </div>
+
+            <!-- ===================== TIMETABLE (NEW) ===================== -->
+            <div id="timetable-section" class="section">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-calendar3"></i> Upload Faculty Timetable</h2>
+                        <p style="color:#666; font-size:13px;">Upload a PDF timetable for any faculty. Uploading a new one for the same faculty + semester automatically replaces the currently active version (older ones stay in history).</p>
+                    </div>
+
+                    <div class="upload-form">
+                        <div>
+                            <label for="ttFaculty">Faculty</label>
+                            <select id="ttFaculty"></select>
+                        </div>
+                        <div>
+                            <label for="ttSemester">Academic Semester</label>
+                            <select id="ttSemester"></select>
+                        </div>
+                        <div class="full-width">
+                            <label for="ttFile">Timetable PDF</label>
+                            <input type="file" id="ttFile" accept="application/pdf">
+                        </div>
+                        <div class="full-width">
+                            <button class="btn-upload" id="ttUploadBtn" onclick="uploadTimetable()">
+                                <i class="bi bi-cloud-upload"></i> Upload Timetable
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-clock-history"></i> Timetable History</h2>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <label style="font-size:13px; color:#666; font-weight:600;">Faculty:</label>
+                            <select id="ttHistoryFaculty" onchange="loadTimetableHistory()" style="padding:8px 12px; border:2px solid #e0e0e0; border-radius:6px;"></select>
+                        </div>
+                    </div>
+                    <div id="timetableHistoryContainer">Select a faculty to view its timetable history.</div>
+                </div>
+            </div>
+
+            <!-- ===================== SEMESTERS (NEW) ===================== -->
+            <div id="semesters-section" class="section">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-calendar-range"></i> Activate Academic Semester</h2>
+                        <p style="color:#666; font-size:13px;">Activating a semester advances every active student's Year/Semester automatically, based on each student's own admission date. This is a batch action affecting the whole student body at once.</p>
+                    </div>
+
+                    <div class="upload-form">
+                        <div>
+                            <label for="semAcademicYear">Academic Year</label>
+                            <input type="text" id="semAcademicYear" placeholder="e.g. 2026/2027">
+                        </div>
+                        <div>
+                            <label for="semSemesterNumber">Semester</label>
+                            <select id="semSemesterNumber">
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="semStartDate">Start Date</label>
+                            <input type="date" id="semStartDate">
+                        </div>
+                        <div>
+                            <label for="semEndDate">End Date</label>
+                            <input type="date" id="semEndDate">
+                        </div>
+                        <div class="full-width">
+                            <button class="btn-upload" id="semActivateBtn" onclick="activateSemester()">
+                                <i class="bi bi-play-circle"></i> Activate Semester
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-clock-history"></i> Semester History</h2>
+                    </div>
+                    <div id="semesterHistoryContainer">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ===================== GOVERNMENT LOAN SCHEME REVIEW ===================== -->
+            <div id="loans-section" class="section">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-cash-coin"></i> Government Loan Scheme Review</h2>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button class="filter-btn active" onclick="loadLoanApplications('Pending')">Pending</button>
+                            <button class="filter-btn" onclick="loadLoanApplications('Approved')">Approved</button>
+                            <button class="filter-btn" onclick="loadLoanApplications('Rejected')">Rejected</button>
+                            <button class="filter-btn" onclick="loadLoanApplications('ALL')">All</button>
+                        </div>
+                    </div>
+                    <div id="loansContainer">Loading loan applications...</div>
+                </div>
+            </div>
+           
+            <!-- ===================== APPLICATION DETAIL MODAL ===================== -->
+            <div id="detailModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Application Details</h2>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div id="modalBody"></div>
+                </div>
+            </div>
+
+            <!-- ===================== REJECT APPLICATION MODAL ===================== -->
+            <div id="rejectApplicationModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:10000;">
+                <div style="background:white; padding:30px; border-radius:8px; max-width:500px; width:90%;">
+                    <h3 style="margin-top:0; color:#2c3e50;">Reject Application</h3>
+                    <p style="color:#7f8c8d;">Please provide a reason for rejecting this application:</p>
+                    <textarea id="appRejectionReason" class="reject-reason" placeholder="Enter rejection reason..."></textarea>
+                    <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                        <button onclick="submitRejectApplication()" style="flex:1; min-width:140px; padding:12px 20px; background:#e74c3c; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Submit Rejection</button>
+                        <button onclick="closeRejectApplicationModal()" style="flex:1; min-width:140px; padding:12px 20px; background:#95a5a6; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/registrar.js"></script>
+</body>
+</html>

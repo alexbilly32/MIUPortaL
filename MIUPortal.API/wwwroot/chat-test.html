@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/lib/bootstrap-icons/bootstrap-icons.min.css">
+    <title>Chat Test</title>
+</head>
+<body>
+
+    <input id="msg" placeholder="Type message">
+    <button onclick="send()">Send</button>
+
+<pre id="result"></pre>
+
+    <script>async function send() {
+
+    const response = await fetch("/api/chatbot", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            message: document.getElementById("msg").value
+        })
+
+    });
+
+    const text = await response.text();
+
+    document.getElementById("result").innerText = text;
+}</script>
+
+</body>
+</html>

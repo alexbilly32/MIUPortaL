@@ -1,0 +1,1827 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIU Portal - Bursar Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/lib/bootstrap-icons/bootstrap-icons.min.css">
+    <style>
+        /* =========================================================
+        MIU PORTAL — GLOBAL TOKENS (matches the rest of the portal)
+        ========================================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0B5345;
+            --primary-dark: #073D35;
+            --primary-light: #1a7a6e;
+            --secondary-color: #F0FFF0;
+            --secondary-dark: #E0F5E0;
+            --accent-color: #2ECC71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #27ae60;
+            --dark-color: #1a1a1a;
+            --light-color: #F5F5F5;
+            --white: #FFFFFF;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(11, 83, 69, 0.1);
+            --box-shadow-lg: 0 10px 30px rgba(11, 83, 69, 0.15);
+            --accent-gold: #FFD54F;
+            --sidebar-width: 260px;
+            --border-color: #E3E7E6;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #2d3436;
+            background: var(--light-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg,#0B5345,#0A6B58);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .25s ease;
+            box-shadow: 0 4px 12px rgba(11,83,69,.25);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 18px rgba(11,83,69,.35);
+                background: linear-gradient(135deg,#0A6B58,#0B5345);
+            }
+
+            .btn-primary:active {
+                transform: scale(.98);
+            }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+        }
+
+        .table-wrapper table {
+            min-width: 640px;
+            margin-top: 0;
+        }
+
+        table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 14px 16px;
+            font-size: 12.5px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        table td {
+            padding: 13px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f2f1;
+        }
+
+        table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================================================
+        BURSAR DASHBOARD MODULE
+        ========================================================= */
+        .bursar-app {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-color);
+        }
+
+        .bursar-sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-dark), #08382E);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.25s ease;
+        }
+
+        .bursar-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+            .bursar-sidebar-brand img {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: white;
+                padding: 3px;
+                box-shadow: 0 4px 12px rgba(0,0,0,.2);
+            }
+
+            .bursar-sidebar-brand .title {
+                font-weight: 700;
+                font-size: 15px;
+                line-height: 1.25;
+            }
+
+            .bursar-sidebar-brand .subtitle {
+                font-size: 11px;
+                opacity: .7;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+            }
+
+        .bursar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 10px;
+            list-style: none;
+        }
+
+        .bursar-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--border-radius);
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,.82);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+            margin-bottom: 3px;
+            cursor: pointer;
+            transition: background .15s ease, color .15s ease;
+        }
+
+            .bursar-nav-btn i {
+                font-size: 17px;
+                width: 20px;
+                text-align: center;
+            }
+
+            .bursar-nav-btn:hover {
+                background: rgba(255,255,255,.08);
+                color: white;
+            }
+
+            .bursar-nav-btn.active {
+                background: var(--accent-gold);
+                color: #1a1a1a;
+                font-weight: 700;
+            }
+
+            .bursar-nav-btn:focus-visible {
+                outline: 2px solid white;
+                outline-offset: 2px;
+            }
+
+        .bursar-sidebar-footer {
+            padding: 16px 18px;
+            border-top: 1px solid rgba(255,255,255,.12);
+            font-size: 12.5px;
+        }
+
+            .bursar-sidebar-footer .bursar-name {
+                font-weight: 700;
+                color: white;
+            }
+
+            .bursar-sidebar-footer .bursar-email {
+                opacity: .7;
+                font-size: 11.5px;
+                word-break: break-all;
+                margin-bottom: 10px;
+            }
+
+        .bursar-logout-btn {
+            width: 100%;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.18);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 8px;
+            font-size: 12.5px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+
+            .bursar-logout-btn:hover {
+                background: rgba(255,255,255,.18);
+            }
+
+        .bursar-main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bursar-topbar {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            gap: 14px;
+        }
+
+            .bursar-topbar h4 {
+                margin: 0;
+                font-weight: 700;
+                color: var(--primary-color);
+                font-size: 20px;
+            }
+
+            .bursar-topbar .subtitle {
+                font-size: 12.5px;
+                color: #6c757d;
+                margin-top: 2px;
+            }
+
+        .bursar-topbar-brand {
+            text-align: right;
+        }
+
+            .bursar-topbar-brand .name {
+                font-weight: 700;
+                color: var(--primary-color);
+            }
+
+            .bursar-topbar-brand .motto {
+                font-size: 12px;
+                font-style: italic;
+                color: #6c757d;
+            }
+
+        .bursar-content {
+            padding: 26px 28px 40px;
+            flex: 1;
+        }
+
+        .bursar-view {
+            display: none;
+        }
+
+            .bursar-view.active {
+                display: block;
+                animation: slideIn 0.2s ease;
+            }
+
+        .bursar-menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 6px 10px;
+            font-size: 18px;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        /* ===== FOOTER (item 4) ===== */
+        .site-footer {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            color: white;
+            text-align: center;
+            padding: 16px;
+            font-size: 12.5px;
+        }
+
+        @media (max-width: 991px) {
+            .bursar-sidebar {
+                transform: translateX(-100%);
+            }
+
+                .bursar-sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .bursar-main {
+                margin-left: 0;
+            }
+
+            .bursar-menu-toggle {
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .bursar-topbar-brand {
+                display: none;
+            }
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+            .kpi-card:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--box-shadow-lg);
+            }
+
+        .kpi-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 700;
+        }
+
+        .kpi-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-top: 2px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 22px;
+        }
+
+        .panel-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+            .panel-title > span:first-child {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+        .panel-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+
+            .field-grid input, .field-grid select {
+                width: 100%;
+                padding: 11px 14px;
+                border: 1px solid #ddd;
+                border-radius: var(--border-radius);
+                font-size: 14px;
+                font-family: inherit;
+                transition: border-color .2s ease, box-shadow .2s ease;
+            }
+
+                .field-grid input:focus, .field-grid select:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(11,83,69,.12);
+                }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 6px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .2s ease, color .2s ease;
+        }
+
+            .btn-outline:hover {
+                background: var(--primary-color);
+                color: white;
+            }
+
+            .btn-outline.btn-sm {
+                padding: 7px 14px;
+            }
+
+        .btn-icon {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            margin-right: 4px;
+            transition: opacity .15s ease;
+        }
+
+            .btn-icon:hover {
+                opacity: .85;
+            }
+
+        .btn-icon-approve {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-icon-reject {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            white-space: nowrap;
+        }
+
+        .badge-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-cleared {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-notcleared {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .notif-item {
+            border-left: 4px solid var(--primary-light);
+            padding: 11px 15px;
+            border-radius: 6px;
+            background: var(--secondary-color);
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .notif-item.severity-action_required {
+                border-left-color: var(--danger-color);
+                background: #fdf3f3;
+            }
+
+            .notif-item.severity-success {
+                border-left-color: var(--success-color);
+                background: #f2faf5;
+            }
+
+        .ledger-credit {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .ledger-debit {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 44px 20px;
+            color: #93A19C;
+        }
+
+            .empty-state i {
+                font-size: 2.3rem;
+                margin-bottom: 10px;
+                display: block;
+                opacity: .6;
+            }
+
+        .spinner-wrap {
+            text-align: center;
+            padding: 34px;
+            color: #93A19C;
+            font-size: 13.5px;
+        }
+
+        .mini-spinner {
+            width: 22px;
+            height: 22px;
+            border: 3px solid var(--secondary-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast-host {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            width: 360px;
+        }
+
+        .miu-toast {
+            background: #eafaf0;
+            color: #0f5132;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-lg);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--success-color);
+            border-left: 6px solid var(--success-color);
+            animation: slideIn 0.25s ease;
+        }
+
+            .miu-toast i {
+                color: var(--success-color);
+            }
+
+            .miu-toast.toast-danger {
+                background: #fdecea;
+                color: #7a1f1a;
+                border-color: var(--danger-color);
+                border-left-color: var(--danger-color);
+            }
+
+                .miu-toast.toast-danger i {
+                    color: var(--danger-color);
+                }
+
+            .miu-toast button {
+                background: none;
+                border: none;
+                color: inherit;
+                opacity: 0.6;
+                cursor: pointer;
+                font-size: 18px;
+                line-height: 1;
+            }
+
+                .miu-toast button:hover {
+                    opacity: 1;
+                }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+        .small {
+            font-size: 12.5px;
+        }
+
+        .fw-semibold {
+            font-weight: 600;
+        }
+
+        .mb-2 {
+            margin-bottom: 10px;
+        }
+
+        .mt-1 {
+            margin-top: 4px;
+        }
+
+        #authGuard {
+            position: fixed;
+            inset: 0;
+            background: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 9999;
+            font-size: 1.05rem;
+            text-align: center;
+        }
+
+        .guard-spinner {
+            width: 34px;
+            height: 34px;
+            border: 3px solid rgba(255,255,255,.25);
+            border-top-color: white;
+            border-radius: 50%;
+            margin: 0 auto 14px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* ===== PRINT (item 2 & 5 — offline PDF via browser print) ===== */
+        @media print {
+            .bursar-sidebar, .bursar-topbar, .toast-host, .field-grid, .bursar-menu-toggle,
+            .panel-actions, .site-footer {
+                display: none !important;
+            }
+
+            .bursar-main {
+                margin-left: 0;
+            }
+
+            .bursar-content {
+                padding: 0;
+            }
+
+            .panel {
+                box-shadow: none;
+                border: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bursar-content {
+                padding: 18px 16px 30px;
+            }
+
+            .bursar-topbar {
+                padding: 14px 18px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="authGuard">
+        <div>
+            <div class="guard-spinner"></div>
+            Checking bursar session…
+        </div>
+    </div>
+
+    <div class="bursar-app">
+
+        <!-- ===================== SIDEBAR ===================== -->
+        <nav class="bursar-sidebar" id="sidebar">
+            <div class="bursar-sidebar-brand">
+                <img src="images/miu-logo.jpg" alt="MIU Logo">
+                <div>
+                    <div class="title">MIU Portal</div>
+                    <div class="subtitle">Bursar Dashboard</div>
+                </div>
+            </div>
+
+            <div class="bursar-nav">
+                <button class="bursar-nav-btn active" data-view="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</button>
+                <button class="bursar-nav-btn" data-view="students"><i class="bi bi-people"></i> Student Accounts</button>
+                <button class="bursar-nav-btn" data-view="admissionfee"><i class="bi bi-mortarboard-fill"></i> Admission Fee Verification</button>
+                <button class="bursar-nav-btn" data-view="verification"><i class="bi bi-patch-check"></i> Payment Verification</button>
+                <button class="bursar-nav-btn" data-view="clearance"><i class="bi bi-mortarboard"></i> Financial Clearance</button>
+                <button class="bursar-nav-btn" data-view="feestructures"><i class="bi bi-cash-coin"></i> Fee Structures</button>
+                <button class="bursar-nav-btn" data-view="reports"><i class="bi bi-bar-chart-line"></i> Reports</button>
+                <button class="bursar-nav-btn" data-view="documents"><i class="bi bi-file-earmark-check"></i> Document Authorization</button>
+                <button class="bursar-nav-btn" data-view="auditlog"><i class="bi bi-shield-lock"></i> Audit Trail</button>
+                <button class="bursar-nav-btn" data-view="counterpayment"><i class="bi bi-cash-coin"></i> Record Counter Payment</button>
+            </div>
+
+            <div class="bursar-sidebar-footer">
+                <div class="bursar-name" id="bursarNameLabel">Bursar</div>
+                <div class="bursar-email" id="bursarEmailLabel">—</div>
+                <button class="bursar-logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+            </div>
+        </nav>
+
+        <!-- ===================== MAIN AREA ===================== -->
+        <div class="bursar-main">
+            <div class="bursar-topbar">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <button class="bursar-menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
+                    <div>
+                        <h4 id="pageTitle">Dashboard Overview</h4>
+                        <div class="subtitle" id="pageSubtitle">Financial summary across the university</div>
+                    </div>
+                </div>
+                <div class="bursar-topbar-brand">
+                    <div class="name">Metropolitan International University</div>
+                    <div class="motto">"For Career Empowerment"</div>
+                </div>
+            </div>
+
+            <div class="bursar-content">
+                <div class="toast-host" id="toastHost"></div>
+
+                <!-- ===================== DASHBOARD ===================== -->
+                <section class="bursar-view active" id="view-dashboard">
+                    <div class="kpi-grid" id="summaryCards"></div>
+                    <div class="panel">
+                        <div class="panel-title"><span><i class="bi bi-bell"></i> Notifications</span></div>
+                        <div id="notificationsList"><div class="spinner-wrap"><div class="mini-spinner"></div>Loading notifications…</div></div>
+                    </div>
+                </section>
+
+                <!-- ===================== STUDENTS ===================== -->
+                <section class="bursar-view" id="view-students">
+                    <div class="panel">
+                        <div class="panel-title"><span><i class="bi bi-search"></i> Search Students</span></div>
+                        <div class="field-grid">
+                            <input type="text" id="stuQuery" placeholder="Reg number, name, or email">
+                            <input type="text" id="stuProgramme" placeholder="Programme code (e.g. BIT)">
+                            <input type="text" id="stuIntakeYear" placeholder="Intake year (e.g. 26)">
+                            <input type="number" id="stuFacultyId" placeholder="Faculty ID">
+                            <button class="btn btn-primary" onclick="searchStudents()"><i class="bi bi-search"></i> Search</button>
+                        </div>
+                        <div class="panel-actions mb-2">
+                            <button class="btn-outline btn-sm" onclick="exportCSV('studentsResults', 'students.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                            <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                        </div>
+                        <div id="studentsResults"><div class="empty-state"><i class="bi bi-people"></i>Search for a student to get started</div></div>
+                    </div>
+
+                    <!-- item 3: Student Statement (Module 8) -->
+                    <div class="panel" id="studentDetailPanel" style="display:none;">
+                        <div class="panel-title">
+                            <span><i class="bi bi-person-lines-fill"></i> Student Statement — <span id="ledgerStudentName"></span></span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="exportCSV('studentLedgerContent', 'statement.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div id="studentLedgerContent"></div>
+                    </div>
+                </section>
+
+                <!-- ===================== ADMISSION FEE VERIFICATION (NEW) ===================== -->
+                <section class="bursar-view" id="view-admissionfee">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <span><i class="bi bi-mortarboard-fill"></i> Pending Admission Fee Verifications</span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="loadPendingAdmissionFees()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                                <button class="btn-outline btn-sm" onclick="exportCSV('admissionFeeList', 'admission-fee-pending.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div class="small text-muted mb-2">
+                            <i class="bi bi-info-circle"></i> This is the one-time admission fee paid by applicants BEFORE they become enrolled students —
+                            separate from tuition/functional fee payments under Payment Verification. Once verified here, the application
+                            moves to the Academic Registrar for approval and admission letter generation.
+                        </div>
+                        <div id="admissionFeeList"><div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div></div>
+                    </div>
+                </section>
+
+                <!-- ===================== PAYMENT VERIFICATION ===================== -->
+                <section class="bursar-view" id="view-verification">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <span><i class="bi bi-patch-check"></i> Pending Payment Verifications</span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="exportCSV('pendingPaymentsList', 'pending-payments.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div id="pendingPaymentsList"><div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div></div>
+                    </div>
+                </section>
+
+                <section class="bursar-view" id="view-counterpayment">
+                    <div class="panel">
+                        <div class="panel-title"><span><i class="bi bi-cash-coin"></i> Record Counter Payment</span></div>
+                        <div class="small text-muted mb-2">
+                            <i class="bi bi-info-circle"></i> University policy does not permit cash payments to the bursar.
+                            Only use this for payments the bursar has personally verified — a bank deposit slip or mobile money
+                            confirmation shown at the counter. This is recorded and approved immediately, unlike student portal
+                            submissions which require separate review.
+                        </div>
+                        <div class="field-grid">
+                            <input type="text" id="cpRegNumber" placeholder="Reg number (e.g. 26/BIT/001/KLA)">
+                            <select id="cpCategory">
+                                <option value="TUITION">Tuition</option>
+                                <option value="FUNCTIONAL">Functional</option>
+                            </select>
+                            <input type="number" id="cpAmount" placeholder="Amount (UGX)">
+                            <select id="cpMethod">
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Mobile Money">Mobile Money</option>
+                                <option value="Bank Deposit">Bank Deposit</option>
+                            </select>
+                            <input type="number" id="cpSemesterId" placeholder="Semester ID">
+                            <button class="btn btn-primary" onclick="recordCounterPayment()"><i class="bi bi-check2"></i> Record Payment</button>
+                        </div>
+                        <div id="counterPaymentResult"></div>
+                    </div>
+                </section>
+
+                <!-- ===================== CLEARANCE ===================== -->
+                <section class="bursar-view" id="view-clearance">
+                    <div class="panel">
+                        <div class="panel-title"><span><i class="bi bi-mortarboard"></i> Check Financial Clearance</span></div>
+                        <div class="field-grid">
+                            <input type="text" id="clrRegNumber" placeholder="Reg number (e.g. 26/BIT/001/KLA)">
+                            <input type="text" id="clrAcademicYear" placeholder="Academic year (e.g. 2026/2027)">
+                            <select id="clrSemester">
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="checkClearance()"><i class="bi bi-check2-circle"></i> Check</button>
+                        </div>
+                        <div id="clearanceResult"></div>
+                    </div>
+
+                    <div class="panel" id="overridePanel" style="display:none;">
+                        <div class="panel-title"><span><i class="bi bi-pencil-square"></i> Record Clearance Override</span></div>
+                        <div class="field-grid">
+                            <select id="ovType">
+                                <option value="REGISTRATION">Registration</option>
+                                <option value="EXAM">Exam</option>
+                            </select>
+                            <select id="ovGranted">
+                                <option value="true">Grant</option>
+                                <option value="false">Revoke</option>
+                            </select>
+                            <input type="text" id="ovReason" placeholder="Reason (required)" style="grid-column: span 2;">
+                        </div>
+                        <button class="btn btn-outline" onclick="submitOverride()"><i class="bi bi-save"></i> Record Override</button>
+                    </div>
+                </section>
+
+                <!-- ===================== FEE STRUCTURES ===================== -->
+                <section class="bursar-view" id="view-feestructures">
+                    <div class="panel">
+                        <div class="panel-title"><span><i class="bi bi-plus-circle"></i> Create Fee Structure</span></div>
+                        <div class="field-grid">
+                            <input type="text" id="fsProgramme" placeholder="Programme code">
+                            <input type="text" id="fsYear" placeholder="Academic year">
+                            <select id="fsSemester">
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                            </select>
+                            <input type="number" id="fsTuition" placeholder="Tuition (UGX)">
+                            <input type="number" id="fsFunctional" placeholder="Functional (UGX)">
+                            <input type="number" id="fsOther" placeholder="Other charges" value="0">
+                        </div>
+                        <button class="btn btn-primary" onclick="createFeeStructure()"><i class="bi bi-check2"></i> Create Fee Structure</button>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-title">
+                            <span><i class="bi bi-list-ul"></i> Fee Structures</span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="loadFeeStructures()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                                <button class="btn-outline btn-sm" onclick="exportCSV('feeStructuresList', 'fee-structures.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div id="feeStructuresList"><div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div></div>
+                    </div>
+                </section>
+
+                <!-- ===================== REPORTS ===================== -->
+                <section class="bursar-view" id="view-reports">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <span><i class="bi bi-bar-chart-line"></i> Reports</span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="exportCSV('reportContent', 'report.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div class="field-grid" style="margin-bottom:8px;">
+                            <button class="btn-outline btn-sm" onclick="loadReport('daily')"><i class="bi bi-calendar-day"></i> Daily Collections</button>
+                            <button class="btn-outline btn-sm" onclick="loadReport('outstanding')"><i class="bi bi-exclamation-circle"></i> Outstanding Balances</button>
+                            <button class="btn-outline btn-sm" onclick="loadReport('defaulters')"><i class="bi bi-flag"></i> Defaulters</button>
+                            <button class="btn-outline btn-sm" onclick="loadReport('revenue')"><i class="bi bi-graph-up"></i> Revenue by Programme</button>
+                        </div>
+                        <div id="reportContent"><div class="empty-state"><i class="bi bi-bar-chart"></i>Select a report above</div></div>
+                    </div>
+                </section>
+
+                <!-- ===================== DOCUMENTS ===================== -->
+                <section class="bursar-view" id="view-documents">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <span><i class="bi bi-file-earmark-check"></i> Document Authorization</span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="exportCSV('documentsList', 'documents.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div class="field-grid">
+                            <input type="text" id="docRegNumber" placeholder="Reg number (optional)">
+                            <select id="docType">
+                                <option value="">All document types</option>
+                                <option value="EXAMINATION_PERMIT">Examination Permit</option>
+                                <option value="SEMESTER_REGISTRATION_CARD">Semester Registration Card</option>
+                                <option value="PAYMENT_RECEIPT">Payment Receipt</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadDocuments()"><i class="bi bi-search"></i> Search</button>
+                        </div>
+
+                        <div class="field-grid" style="max-width: 560px;">
+                            <input type="text" id="qrCodeInput" placeholder="Paste Doc No, verification code, or scanned URL">
+                            <button class="btn-outline" onclick="verifyDocument()"><i class="bi bi-qr-code-scan"></i> Verify</button>
+                        </div>
+                        <div class="small text-muted mb-2"><i class="bi bi-info-circle"></i> Accepts the "Doc No" printed under the QR code, the raw verification code, or a full scanned URL.</div>
+                        <div id="qrVerifyResult" class="mb-2"></div>
+
+                        <div id="documentsList"><div class="empty-state"><i class="bi bi-file-earmark"></i>Search to view documents</div></div>
+                    </div>
+                </section>
+
+                <!-- ===================== AUDIT LOG ===================== -->
+                <section class="bursar-view" id="view-auditlog">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <span><i class="bi bi-shield-lock"></i> Audit Trail</span>
+                            <div class="panel-actions">
+                                <button class="btn-outline btn-sm" onclick="exportCSV('auditLogList', 'audit-log.csv')"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+                                <button class="btn-outline btn-sm" onclick="printCurrentView()"><i class="bi bi-printer"></i> Print</button>
+                            </div>
+                        </div>
+                        <div class="field-grid">
+                            <input type="text" id="auditRegNumber" placeholder="Reg number (optional)">
+                            <select id="auditActionType">
+                                <option value="">All action types</option>
+                                <option value="PAYMENT_APPROVED">Payment Approved</option>
+                                <option value="PAYMENT_REJECTED">Payment Rejected</option>
+                                <option value="ADMISSION_FEE_VERIFIED">Admission Fee Verified</option>
+                                <option value="ADMISSION_FEE_REJECTED">Admission Fee Rejected</option>
+                                <option value="CLEARANCE_OVERRIDE">Clearance Override</option>
+                                <option value="FEE_STRUCTURE_CREATED">Fee Structure Created</option>
+                                <option value="FEE_STRUCTURE_UPDATED">Fee Structure Updated</option>
+                                <option value="FEE_STRUCTURE_DEACTIVATED">Fee Structure Deactivated</option>
+                                <option value="BURSAR_LOGIN">Bursar Login</option>
+                                <option value="BURSAR_LOGIN_FAILED">Bursar Login Failed</option>
+                            </select>
+                            <input type="date" id="auditFromDate">
+                            <input type="date" id="auditToDate">
+                            <button class="btn btn-primary" onclick="loadAuditLog()"><i class="bi bi-search"></i> Filter</button>
+                        </div>
+                        <div id="auditLogList"><div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div></div>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="site-footer">&copy; 2026 Metropolitan International University. All rights reserved.</footer>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://localhost:44366/api';
+
+        /* ===================== AUTH GUARD ===================== */
+        function getToken() { return localStorage.getItem('bursarToken'); }
+
+        (function initAuth() {
+            const token = getToken();
+            if (!token) { window.location.href = 'login.html'; return; }
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (Date.now() >= payload.exp * 1000) {
+                    localStorage.removeItem('bursarToken');
+                    localStorage.removeItem('bursar');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (e) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const bursar = JSON.parse(localStorage.getItem('bursar') || '{}');
+            document.getElementById('bursarNameLabel').textContent =
+                (bursar.firstName || bursar.email || 'Bursar') + (bursar.lastName ? ' ' + bursar.lastName : '');
+            document.getElementById('bursarEmailLabel').textContent = bursar.email || '';
+            document.getElementById('authGuard').style.display = 'none';
+
+            initDashboard();
+        })();
+
+        function logout() {
+            localStorage.removeItem('bursarToken');
+            localStorage.removeItem('bursar');
+            localStorage.removeItem('currentRole');
+            window.location.href = 'login.html';
+        }
+
+        /* ===================== EXPORT / PRINT (items 2 & 5) ===================== */
+        function exportCSV(containerId, filename) {
+            const table = document.querySelector(`#${containerId} table`);
+            if (!table) { showToast('No data to export yet.', 'danger'); return; }
+            const rows = Array.from(table.querySelectorAll('tr')).map(row =>
+                Array.from(row.querySelectorAll('th, td'))
+                    .map(cell => `"${cell.innerText.replace(/"/g, '""').trim()}"`)
+                    .join(',')
+            );
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('CSV downloaded.');
+        }
+
+        function printCurrentView() { window.print(); }
+
+        /* ===================== API HELPER ===================== */
+        async function api(path, options = {}) {
+            const res = await fetch(`${API_URL}${path}`, {
+                ...options,
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+                    ...(options.headers || {})
+                }
+            });
+
+            if (res.status === 401) {
+                showToast('Session expired. Please sign in again.', 'danger');
+                setTimeout(logout, 1500);
+                throw new Error('Unauthorized');
+            }
+
+            let data;
+            try { data = await res.json(); } catch { data = null; }
+
+            if (!res.ok) {
+                const msg = (data && (data.message || data.title)) || `Request failed (${res.status})`;
+                throw new Error(msg);
+            }
+            return data;
+        }
+
+        function encReg(reg) { return encodeURIComponent(reg); }
+        function fmtUGX(n) { if (n === null || n === undefined) return '—'; return 'UGX ' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+        function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+
+        function showToast(message, type = 'success') {
+            const id = 't' + Date.now();
+            const icon = type === 'success' ? 'check-circle' : type === 'danger' ? 'x-circle' : 'info-circle';
+            const html = `
+            <div id="${id}" class="miu-toast ${type === 'danger' ? 'toast-danger' : ''}">
+              <div><i class="bi bi-${icon}" style="margin-right:8px;"></i>${message}</div>
+              <button onclick="document.getElementById('${id}').remove()">&times;</button>
+            </div>`;
+            document.getElementById('toastHost').insertAdjacentHTML('beforeend', html);
+            setTimeout(() => { const el = document.getElementById(id); if (el) el.remove(); }, 6000);
+        }
+
+        /* ===================== NAVIGATION ===================== */
+        const pageTitles = {
+            dashboard: ['Dashboard Overview', 'Financial summary across the university'],
+            students: ['Student Financial Accounts', 'Search students and review payment statements'],
+            admissionfee: ['Admission Fee Verification', 'Review and approve or reject admission fee payments from applicants'],
+            verification: ['Payment Verification', 'Review and approve or reject submitted payment proofs'],
+            clearance: ['Financial Clearance', 'Check registration and exam eligibility, or record overrides'],
+            feestructures: ['Fee Structures', 'Manage tuition and functional fee schedules per programme'],
+            reports: ['Reports', 'Collections, balances, defaulters, and revenue reporting'],
+            documents: ['Document Authorization', 'Review generated documents and verify QR codes'],
+            counterpayment: ['Record Counter Payment', 'For payments verified in person — bank deposit slip or mobile money confirmation only, no cash'],
+            auditlog: ['Audit Trail', 'A record of every bursar action taken in the system']
+        };
+
+        document.querySelectorAll('.bursar-nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.bursar-nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const view = btn.dataset.view;
+                document.querySelectorAll('.bursar-view').forEach(s => s.classList.remove('active'));
+                document.getElementById(`view-${view}`).classList.add('active');
+                document.getElementById('pageTitle').textContent = pageTitles[view][0];
+                document.getElementById('pageSubtitle').textContent = pageTitles[view][1];
+                document.getElementById('sidebar').classList.remove('open');
+
+                if (view === 'admissionfee') loadPendingAdmissionFees();
+                if (view === 'verification') loadPendingPayments();
+                if (view === 'feestructures') loadFeeStructures();
+                if (view === 'auditlog') loadAuditLog();
+            });
+        });
+
+        /* ===================== DASHBOARD ===================== */
+        async function initDashboard() {
+            try {
+                const summary = await api('/bursar/dashboard/summary');
+                document.getElementById('summaryCards').innerHTML = `
+              ${kpiCard('cash-stack', 'Total Collected', fmtUGX(summary.totalCollected))}
+              ${kpiCard('calendar-check', "Today's Collections", fmtUGX(summary.todaysCollections))}
+              ${kpiCard('exclamation-triangle', 'Outstanding Balances', fmtUGX(summary.outstandingBalances))}
+              ${kpiCard('person-check', 'Fully Cleared Students', summary.studentsFullyCleared)}
+              ${kpiCard('person-exclamation', 'Students With Balances', summary.studentsWithOutstandingFees)}
+              ${kpiCard('hourglass-split', 'Pending Verifications', summary.pendingVerifications)}
+            `;
+            } catch (e) { showToast(e.message, 'danger'); }
+
+            try {
+                const notif = await api('/bursar/notifications');
+                document.getElementById('notificationsList').innerHTML = notif.notifications.length === 0
+                    ? `<div class="empty-state"><i class="bi bi-check2-circle"></i>Nothing needs your attention right now.</div>`
+                    : notif.notifications.map(n => `
+                  <div class="notif-item severity-${n.severity}">
+                    <i class="bi bi-${n.severity === 'action_required' ? 'exclamation-circle' : n.severity === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    ${n.message}
+                  </div>`).join('');
+            } catch (e) {
+                document.getElementById('notificationsList').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        function kpiCard(icon, label, value) {
+            return `
+            <div class="kpi-card">
+              <div class="kpi-icon"><i class="bi bi-${icon}"></i></div>
+              <div class="kpi-label">${label}</div>
+              <div class="kpi-value">${value}</div>
+            </div>`;
+        }
+
+        /* ===================== STUDENTS ===================== */
+        async function searchStudents() {
+            const params = new URLSearchParams();
+            const q = document.getElementById('stuQuery').value.trim();
+            const prog = document.getElementById('stuProgramme').value.trim();
+            const intake = document.getElementById('stuIntakeYear').value.trim();
+            const faculty = document.getElementById('stuFacultyId').value.trim();
+            if (q) params.set('query', q);
+            if (prog) params.set('programmeCode', prog);
+            if (intake) params.set('intakeYear', intake);
+            if (faculty) params.set('facultyId', faculty);
+
+            document.getElementById('studentsResults').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Searching…</div>`;
+            try {
+                const result = await api(`/bursar/students/search?${params.toString()}`);
+                if (result.students.length === 0) {
+                    document.getElementById('studentsResults').innerHTML = `<div class="empty-state"><i class="bi bi-slash-circle"></i>No students matched your search.</div>`;
+                    return;
+                }
+                document.getElementById('studentsResults').innerHTML = `
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Reg Number</th><th>Name</th><th>Programme</th><th>Status</th><th class="text-end">Balance</th><th></th></tr></thead>
+                  <tbody>
+                    ${result.students.map(s => `
+                      <tr>
+                        <td class="fw-semibold">${s.regNumber}</td>
+                        <td>${s.studentName}</td>
+                        <td>${s.programmeCode}</td>
+                        <td><span class="badge ${s.status === 'ACTIVE' ? 'badge-approved' : 'badge-pending'}">${s.status || '—'}</span></td>
+                        <td class="text-end">${fmtUGX(s.feesBalance)}</td>
+                        <td><button class="btn-outline btn-sm" onclick="viewLedger('${s.regNumber}', '${s.studentName.replace(/'/g, "\\'")}')"><i class="bi bi-eye"></i> View Statement</button></td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <div class="small text-muted" style="margin-top:10px;">${result.totalCount} student(s) found</div>
+            `;
+            } catch (e) {
+                document.getElementById('studentsResults').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        async function viewLedger(regNumber, name) {
+            document.getElementById('studentDetailPanel').style.display = 'block';
+            document.getElementById('ledgerStudentName').textContent = name;
+            document.getElementById('studentLedgerContent').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading statement…</div>`;
+            document.getElementById('studentDetailPanel').scrollIntoView({ behavior: 'smooth' });
+
+            try {
+                const ledger = await api(`/bursar/student/${encReg(regNumber)}/ledger`);
+                const rows = ledger.statement.map(e => `
+              <tr>
+                <td>${fmtDate(e.transactionDate)}</td>
+                <td><span class="badge ${e.transactionType === 'PAYMENT' ? 'badge-approved' : 'badge-rejected'}">${e.transactionType}</span></td>
+                <td>${e.notes || '—'}</td>
+                <td class="text-end ${e.transactionType === 'PAYMENT' ? 'ledger-debit' : 'ledger-credit'}">${fmtUGX(e.amount)}</td>
+                <td class="text-end fw-semibold">${fmtUGX(e.runningBalance)}</td>
+              </tr>
+            `).join('');
+
+                document.getElementById('studentLedgerContent').innerHTML = `
+              <div class="field-grid" style="margin-bottom:8px;">
+                <div><div class="small text-muted">Reg Number</div><div class="fw-semibold">${ledger.studentRegNumber}</div></div>
+                <div><div class="small text-muted">Stored Balance</div><div class="fw-semibold">${fmtUGX(ledger.storedFeesBalance)}</div></div>
+                <div><div class="small text-muted">Statement Balance (from today onward)</div><div class="fw-semibold">${fmtUGX(ledger.ledgerComputedBalance)}</div></div>
+              </div>
+              ${ledger.statement.length === 0
+                        ? `<div class="empty-state"><i class="bi bi-inbox"></i>No statement entries yet (only payments made after Payment Verification went live are recorded here).</div>`
+                        : `<div class="table-wrapper"><table>
+                    <thead><tr><th>Date</th><th>Type</th><th>Notes</th><th class="text-end">Amount</th><th class="text-end">Balance</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                  </table></div>`
+                    }
+            `;
+            } catch (e) {
+                document.getElementById('studentLedgerContent').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        /* ===================== ADMISSION FEE VERIFICATION (NEW) ===================== */
+        async function loadPendingAdmissionFees() {
+            document.getElementById('admissionFeeList').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div>`;
+            try {
+                const result = await api('/bursar/admission-fee/pending');
+                if (result.count === 0) {
+                    document.getElementById('admissionFeeList').innerHTML = `<div class="empty-state"><i class="bi bi-check2-all"></i>No admission fee payments awaiting verification.</div>`;
+                    return;
+                }
+                document.getElementById('admissionFeeList').innerHTML = `
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>App #</th><th>Applicant</th><th>Programme</th><th class="text-end">Amount</th><th>Submitted</th><th>Proof</th><th class="text-end">Actions</th></tr></thead>
+                  <tbody>
+                    ${result.data.map(a => `
+                      <tr>
+                        <td class="small">${a.applicationNumber}</td>
+                        <td><div class="fw-semibold">${a.firstName} ${a.lastName}</div><div class="small text-muted">${a.email}</div></td>
+                        <td>${a.programmeName || '—'}</td>
+                        <td class="text-end">${fmtUGX(a.paymentAmount)}</td>
+                        <td class="small">${fmtDate(a.createdAt)}</td>
+                        <td>${a.paymentProofPath ? `<a href="${a.paymentProofPath}" target="_blank">View</a>` : '—'}</td>
+                        <td class="text-end">
+                          <button class="btn-icon btn-icon-approve" onclick="approveAdmissionFee(${a.applicationId})" title="Verify"><i class="bi bi-check-lg"></i></button>
+                          <button class="btn-icon btn-icon-reject" onclick="promptRejectAdmissionFee(${a.applicationId})" title="Reject"><i class="bi bi-x-lg"></i></button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+            } catch (e) {
+                document.getElementById('admissionFeeList').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        async function approveAdmissionFee(applicationId) {
+            if (!confirm('Verify this admission fee payment? The application will move to the Academic Registrar for approval.')) return;
+            try {
+                await api('/bursar/admission-fee/verify', {
+                    method: 'POST',
+                    body: JSON.stringify({ applicationId, isApproved: true })
+                });
+                showToast('Admission fee payment verified successfully.');
+                loadPendingAdmissionFees();
+                initDashboard();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        function promptRejectAdmissionFee(applicationId) {
+            const reason = prompt('Reason for rejecting this admission fee payment:');
+            if (!reason || !reason.trim()) return;
+            rejectAdmissionFee(applicationId, reason.trim());
+        }
+
+        async function rejectAdmissionFee(applicationId, reason) {
+            try {
+                await api('/bursar/admission-fee/verify', {
+                    method: 'POST',
+                    body: JSON.stringify({ applicationId, isApproved: false, rejectionReason: reason })
+                });
+                showToast('Admission fee payment rejected.');
+                loadPendingAdmissionFees();
+                initDashboard();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        /* ===================== PAYMENT VERIFICATION ===================== */
+        async function loadPendingPayments() {
+            document.getElementById('pendingPaymentsList').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div>`;
+            try {
+                const result = await api('/bursar/payment-verification/pending');
+                if (result.pendingCount === 0) {
+                    document.getElementById('pendingPaymentsList').innerHTML = `<div class="empty-state"><i class="bi bi-check2-all"></i>No payments awaiting verification.</div>`;
+                    return;
+                }
+                document.getElementById('pendingPaymentsList').innerHTML = `
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Student</th><th>Category</th><th class="text-end">Amount</th><th>Method</th><th>Reference</th><th>Submitted</th><th>Proof</th><th class="text-end">Actions</th></tr></thead>
+                  <tbody>
+                    ${result.pending.map(p => `
+                      <tr>
+                        <td><div class="fw-semibold">${p.studentName || '—'}</div><div class="small text-muted">${p.regNumber}</div></td>
+                        <td>${p.paymentCategory}</td>
+                        <td class="text-end">${fmtUGX(p.amount)}</td>
+                        <td>${p.paymentMethod || '—'}</td>
+                        <td class="small">${p.transactionReference || '—'}</td>
+                        <td class="small">${fmtDate(p.paymentDate)}</td>
+                        <td>${p.paymentProofPath ? `<a href="${p.paymentProofPath}" target="_blank">View</a>` : '—'}</td>
+                        <td class="text-end">
+                          <button class="btn-icon btn-icon-approve" onclick="approvePayment(${p.paymentId})" title="Approve"><i class="bi bi-check-lg"></i></button>
+                          <button class="btn-icon btn-icon-reject" onclick="promptReject(${p.paymentId})" title="Reject"><i class="bi bi-x-lg"></i></button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+            } catch (e) {
+                document.getElementById('pendingPaymentsList').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        async function approvePayment(id) {
+            if (!confirm('Approve this payment? This will update the student\'s balance and generate a receipt.')) return;
+            try {
+                await api(`/bursar/payment-verification/${id}/approve`, { method: 'POST' });
+                showToast('Payment approved successfully.');
+                loadPendingPayments();
+                initDashboard();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        function promptReject(id) {
+            const reason = prompt('Reason for rejecting this payment:');
+            if (!reason || !reason.trim()) return;
+            rejectPayment(id, reason.trim());
+        }
+
+        async function rejectPayment(id, reason) {
+            try {
+                await api(`/bursar/payment-verification/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
+                showToast('Payment rejected.');
+                loadPendingPayments();
+                initDashboard();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        /* ===================== CLEARANCE ===================== */
+        async function checkClearance() {
+            const regNumber = document.getElementById('clrRegNumber').value.trim();
+            const academicYear = document.getElementById('clrAcademicYear').value.trim();
+            const semester = document.getElementById('clrSemester').value;
+            if (!regNumber || !academicYear) { showToast('Reg number and academic year are required.', 'danger'); return; }
+
+            document.getElementById('clearanceResult').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Checking…</div>`;
+            try {
+                const c = await api(`/bursar/student/${encReg(regNumber)}/clearance?academicYear=${encodeURIComponent(academicYear)}&semester=${semester}`);
+                const statusBadge = s => s === 'Fully Cleared' ? 'badge-cleared' : s === 'Partially Cleared' ? 'badge-partial' : 'badge-notcleared';
+
+                document.getElementById('clearanceResult').innerHTML = `
+              <div class="field-grid" style="margin-bottom:6px;">
+                <div><div class="small text-muted">Student</div><div class="fw-semibold">${c.studentName} (${c.studentRegNumber})</div></div>
+                <div><div class="small text-muted">Overall Status</div><span class="badge ${statusBadge(c.overallStatus)}">${c.overallStatus}</span></div>
+                <div><div class="small text-muted">Tuition</div>${fmtUGX(c.tuitionPaid)} / ${fmtUGX(c.tuitionRequired)}</div>
+                <div><div class="small text-muted">Functional</div>${fmtUGX(c.functionalPaid)} / ${fmtUGX(c.functionalRequired)}</div>
+              </div>
+              ${c.usedFallbackFeeStructure ? `<div class="small text-muted mb-2"><i class="bi bi-info-circle"></i> No specific fee structure found — used the programme's default rate.</div>` : ''}
+              <hr style="border:none; border-top:1px solid var(--border-color); margin: 14px 0;">
+              <div class="field-grid" style="grid-template-columns: 1fr 1fr;">
+                <div>
+                  <div class="fw-semibold mb-2"><i class="bi bi-journal-check"></i> Registration Eligibility</div>
+                  <span class="badge ${c.registration.finalEligible ? 'badge-approved' : 'badge-rejected'}">${c.registration.finalEligible ? 'Eligible' : 'Not Eligible'}</span>
+                  ${c.registration.overridden ? `<div class="small text-muted mt-1"><i class="bi bi-pencil-square"></i> Overridden: ${c.registration.overrideReason}</div>` : ''}
+                </div>
+                <div>
+                  <div class="fw-semibold mb-2"><i class="bi bi-file-earmark-text"></i> Exam Eligibility</div>
+                  <span class="badge ${c.exam.finalEligible ? 'badge-approved' : 'badge-rejected'}">${c.exam.finalEligible ? 'Eligible' : 'Not Eligible'}</span>
+                  ${c.exam.overridden ? `<div class="small text-muted mt-1"><i class="bi bi-pencil-square"></i> Overridden: ${c.exam.overrideReason}</div>` : ''}
+                </div>
+              </div>
+            `;
+                document.getElementById('overridePanel').style.display = 'block';
+            } catch (e) {
+                document.getElementById('clearanceResult').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+                document.getElementById('overridePanel').style.display = 'none';
+            }
+        }
+
+        async function submitOverride() {
+            const regNumber = document.getElementById('clrRegNumber').value.trim();
+            const academicYear = document.getElementById('clrAcademicYear').value.trim();
+            const semester = parseInt(document.getElementById('clrSemester').value);
+            const clearanceType = document.getElementById('ovType').value;
+            const isGranted = document.getElementById('ovGranted').value === 'true';
+            const reason = document.getElementById('ovReason').value.trim();
+
+            if (!reason) { showToast('A reason is required to record an override.', 'danger'); return; }
+
+            try {
+                await api(`/bursar/student/${encReg(regNumber)}/clearance/override`, {
+                    method: 'POST',
+                    body: JSON.stringify({ clearanceType, academicYear, semester, isGranted, reason })
+                });
+                showToast('Override recorded successfully.');
+                document.getElementById('ovReason').value = '';
+                checkClearance();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function recordCounterPayment() {
+            const body = {
+                studentRegNumber: document.getElementById('cpRegNumber').value.trim(),
+                paymentCategory: document.getElementById('cpCategory').value,
+                amount: parseFloat(document.getElementById('cpAmount').value) || 0,
+                paymentMethod: document.getElementById('cpMethod').value,
+                semesterId: parseInt(document.getElementById('cpSemesterId').value)
+            };
+
+            if (!body.studentRegNumber || !body.amount || !body.semesterId) {
+                showToast('Reg number, amount, and semester are required.', 'danger');
+                return;
+            }
+
+            if (!confirm(`Record ${fmtUGX(body.amount)} (${body.paymentCategory}) for ${body.studentRegNumber}? This is verified-in-person only — no cash.`)) return;
+
+            try {
+                const result = await api('/payment/record', { method: 'POST', body: JSON.stringify(body) });
+                document.getElementById('counterPaymentResult').innerHTML = `
+          <div class="notif-item severity-success">
+            <i class="bi bi-check-circle-fill"></i> Recorded. Receipt ${result.receiptGenerated ? 'generated' : 'pending'}${result.receiptEmailSent ? ' and emailed to student.' : '.'}
+          </div>`;
+                showToast('Counter payment recorded successfully.');
+                ['cpRegNumber', 'cpAmount', 'cpSemesterId'].forEach(id => document.getElementById(id).value = '');
+                initDashboard();
+            } catch (e) {
+                showToast(e.message, 'danger');
+            }
+        }
+        /* ===================== FEE STRUCTURES (item 1: reactivate) ===================== */
+        async function loadFeeStructures() {
+            document.getElementById('feeStructuresList').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div>`;
+            try {
+                const list = await api('/bursar/fee-structures?includeInactive=true');
+                if (list.length === 0) {
+                    document.getElementById('feeStructuresList').innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i>No fee structures created yet.</div>`;
+                    return;
+                }
+                document.getElementById('feeStructuresList').innerHTML = `
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Programme</th><th>Year</th><th>Sem</th><th class="text-end">Tuition</th><th class="text-end">Functional</th><th class="text-end">Total</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                  <tbody>
+                    ${list.map(f => `
+                      <tr>
+                        <td><div class="fw-semibold">${f.programmeCode}</div><div class="small text-muted">${f.programmeName || ''}</div></td>
+                        <td>${f.academicYear}</td>
+                        <td>${f.semester}</td>
+                        <td class="text-end">${fmtUGX(f.tuition)}</td>
+                        <td class="text-end">${fmtUGX(f.functionalFees)}</td>
+                        <td class="text-end fw-semibold">${fmtUGX(f.total)}</td>
+                        <td><span class="badge ${f.isActive ? 'badge-approved' : 'badge-pending'}">${f.isActive ? 'Active' : 'Inactive'}</span></td>
+                        <td class="text-end">
+                          ${f.isActive
+                        ? `<button class="btn-outline btn-sm" onclick="deactivateFeeStructure(${f.feeStructureId})"><i class="bi bi-slash-circle"></i> Deactivate</button>`
+                        : `<button class="btn-outline btn-sm" onclick="reactivateFeeStructure(${f.feeStructureId})"><i class="bi bi-arrow-counterclockwise"></i> Reactivate</button>`
+                    }
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+            } catch (e) {
+                document.getElementById('feeStructuresList').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        async function createFeeStructure() {
+            const body = {
+                programmeCode: document.getElementById('fsProgramme').value.trim(),
+                academicYear: document.getElementById('fsYear').value.trim(),
+                semester: parseInt(document.getElementById('fsSemester').value),
+                tuition: parseFloat(document.getElementById('fsTuition').value) || 0,
+                functionalFees: parseFloat(document.getElementById('fsFunctional').value) || 0,
+                otherCharges: parseFloat(document.getElementById('fsOther').value) || 0
+            };
+            if (!body.programmeCode || !body.academicYear) { showToast('Programme code and academic year are required.', 'danger'); return; }
+            try {
+                await api('/bursar/fee-structures', { method: 'POST', body: JSON.stringify(body) });
+                showToast('Fee structure created.');
+                ['fsProgramme', 'fsYear', 'fsTuition', 'fsFunctional'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('fsOther').value = '0';
+                loadFeeStructures();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function deactivateFeeStructure(id) {
+            if (!confirm('Deactivate this fee structure?')) return;
+            try {
+                await api(`/bursar/fee-structures/${id}`, { method: 'DELETE' });
+                showToast('Fee structure deactivated.');
+                loadFeeStructures();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function reactivateFeeStructure(id) {
+            if (!confirm('Reactivate this fee structure?')) return;
+            try {
+                await api(`/bursar/fee-structures/${id}`, { method: 'PUT', body: JSON.stringify({ isActive: true }) });
+                showToast('Fee structure reactivated.');
+                loadFeeStructures();
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        /* ===================== REPORTS ===================== */
+        async function loadReport(type) {
+            document.getElementById('reportContent').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading report…</div>`;
+            try {
+                if (type === 'daily') {
+                    const r = await api('/bursar/reports/daily-collections');
+                    document.getElementById('reportContent').innerHTML = `
+                <div class="mb-2"><span class="fw-semibold">Date:</span> ${r.date} &nbsp;|&nbsp; <span class="fw-semibold">Total:</span> ${fmtUGX(r.totalCollected)} &nbsp;|&nbsp; <span class="fw-semibold">Transactions:</span> ${r.transactionCount}</div>
+                ${r.payments.length === 0 ? emptyReport() : tableFrom(r.payments, [
+                        ['regNumber', 'Reg Number'], ['studentName', 'Student'], ['paymentCategory', 'Category'],
+                        ['amount', 'Amount', fmtUGX], ['paymentMethod', 'Method'], ['transactionReference', 'Reference']
+                    ])}`;
+                } else if (type === 'outstanding') {
+                    const r = await api('/bursar/reports/outstanding-balances');
+                    document.getElementById('reportContent').innerHTML = `
+                <div class="mb-2"><span class="fw-semibold">Students:</span> ${r.studentCount} &nbsp;|&nbsp; <span class="fw-semibold">Total Outstanding:</span> ${fmtUGX(r.totalOutstanding)}</div>
+                ${r.students.length === 0 ? emptyReport() : tableFrom(r.students, [
+                        ['regNumber', 'Reg Number'], ['studentName', 'Student'], ['programmeCode', 'Programme'],
+                        ['feesBalance', 'Balance', fmtUGX], ['totalPaid', 'Total Paid', fmtUGX]
+                    ])}`;
+                } else if (type === 'defaulters') {
+                    const r = await api('/bursar/reports/defaulters');
+                    document.getElementById('reportContent').innerHTML = `
+                <div class="mb-2"><span class="fw-semibold">Defaulters:</span> ${r.defaulterCount} &nbsp;|&nbsp; <span class="fw-semibold">Total Outstanding:</span> ${fmtUGX(r.totalOutstanding)}</div>
+                ${r.defaulters.length === 0 ? emptyReport() : tableFrom(r.defaulters, [
+                        ['regNumber', 'Reg Number'], ['studentName', 'Student'], ['programmeCode', 'Programme'],
+                        ['feesBalance', 'Balance', fmtUGX], ['status', 'Status']
+                    ])}`;
+                } else if (type === 'revenue') {
+                    const r = await api('/bursar/reports/revenue-by-programme');
+                    document.getElementById('reportContent').innerHTML = `
+                <div class="mb-2"><span class="fw-semibold">Grand Total:</span> ${fmtUGX(r.grandTotal)}</div>
+                ${r.programmes.length === 0 ? emptyReport() : tableFrom(r.programmes, [
+                        ['programmeCode', 'Programme'], ['programmeName', 'Name'],
+                        ['totalRevenue', 'Revenue', fmtUGX], ['paymentCount', 'Payments']
+                    ])}`;
+                }
+            } catch (e) {
+                document.getElementById('reportContent').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        function emptyReport() { return `<div class="empty-state"><i class="bi bi-inbox"></i>No data for this report.</div>`; }
+
+        function tableFrom(rows, cols) {
+            return `
+            <div class="table-wrapper">
+              <table>
+                <thead><tr>${cols.map(c => `<th>${c[1]}</th>`).join('')}</tr></thead>
+                <tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${c[2] ? c[2](r[c[0]]) : (r[c[0]] ?? '—')}</td>`).join('')}</tr>`).join('')}</tbody>
+              </table>
+            </div>`;
+        }
+
+        /* ===================== DOCUMENTS (QR fix) ===================== */
+        async function loadDocuments() {
+            const params = new URLSearchParams();
+            const reg = document.getElementById('docRegNumber').value.trim();
+            const type = document.getElementById('docType').value;
+            if (reg) params.set('regNumber', reg);
+            if (type) params.set('documentType', type);
+
+            document.getElementById('documentsList').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div>`;
+            try {
+                const result = await api(`/bursar/documents?${params.toString()}`);
+                if (result.count === 0) {
+                    document.getElementById('documentsList').innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i>No documents found.</div>`;
+                    return;
+                }
+                document.getElementById('documentsList').innerHTML = `
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Student</th><th>Type</th><th>Doc No</th><th>Status</th><th>Fee Paid</th><th>Generated</th><th>File</th></tr></thead>
+                  <tbody>
+                    ${result.documents.map(d => `
+                      <tr>
+                        <td><div class="fw-semibold">${d.studentName || '—'}</div><div class="small text-muted">${d.regNumber}</div></td>
+                        <td>${d.documentType}</td>
+                        <td class="small">${d.documentNumber || '—'}</td>
+                        <td><span class="badge badge-approved">${d.status}</span></td>
+                        <td>${d.feePaid ? '<i class="bi bi-check-circle" style="color:var(--success-color)"></i>' : '<i class="bi bi-x-circle" style="color:var(--danger-color)"></i>'}</td>
+                        <td class="small">${fmtDate(d.dateGenerated)}</td>
+                        <td>${d.documentPath ? `<a href="${d.documentPath}" target="_blank"><i class="bi bi-download"></i></a>` : '—'}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+            } catch (e) {
+                document.getElementById('documentsList').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+
+        async function verifyDocument() {
+            let qr = document.getElementById('qrCodeInput').value.trim();
+            if (!qr) return;
+
+            if (qr.includes('/')) {
+                const parts = qr.split('/').filter(Boolean);
+                qr = parts[parts.length - 1];
+            }
+
+            document.getElementById('qrVerifyResult').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Verifying…</div>`;
+            try {
+                const r = await api(`/bursar/documents/verify/${encodeURIComponent(qr)}`);
+                if (r.revoked) {
+                    document.getElementById('qrVerifyResult').innerHTML = `<div class="notif-item severity-action_required"><i class="bi bi-slash-circle-fill"></i> This document has been revoked${r.revokedAt ? ' on ' + fmtDate(r.revokedAt) : ''}.</div>`;
+                    return;
+                }
+                document.getElementById('qrVerifyResult').innerHTML = `
+              <div class="notif-item severity-success">
+                <i class="bi bi-patch-check-fill"></i> Valid — <strong>${r.documentType}</strong> (${r.documentNumber || 'no doc no.'}) for ${r.studentName} (${r.regNumber}).
+                <span class="badge ${r.isExpired ? 'badge-rejected' : 'badge-approved'}" style="margin-left:auto;">${r.isExpired ? 'Expired' : 'Active'}</span>
+              </div>`;
+            } catch (e) {
+                document.getElementById('qrVerifyResult').innerHTML = `<div class="notif-item severity-action_required"><i class="bi bi-x-circle-fill"></i> ${e.message}</div>`;
+            }
+        }
+
+        /* ===================== AUDIT LOG ===================== */
+        async function loadAuditLog() {
+            const params = new URLSearchParams();
+            const reg = document.getElementById('auditRegNumber').value.trim();
+            const type = document.getElementById('auditActionType').value;
+            const from = document.getElementById('auditFromDate').value;
+            const to = document.getElementById('auditToDate').value;
+            if (reg) params.set('regNumber', reg);
+            if (type) params.set('actionType', type);
+            if (from) params.set('fromDate', from);
+            if (to) params.set('toDate', to);
+
+            document.getElementById('auditLogList').innerHTML = `<div class="spinner-wrap"><div class="mini-spinner"></div>Loading…</div>`;
+            try {
+                const result = await api(`/bursar/audit-log?${params.toString()}`);
+                if (result.count === 0) {
+                    document.getElementById('auditLogList').innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i>No audit entries match this filter.</div>`;
+                    return;
+                }
+                document.getElementById('auditLogList').innerHTML = `
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>When</th><th>Bursar</th><th>Action</th><th>Details</th><th>Student</th></tr></thead>
+                  <tbody>
+                    ${result.entries.map(e => `
+                      <tr>
+                        <td class="small">${fmtDate(e.actionDate)}</td>
+                        <td class="small">${e.bursarName || '—'}</td>
+                        <td><span class="badge badge-pending">${e.action}</span></td>
+                        <td class="small">${e.details || '—'}</td>
+                        <td class="small">${e.regNumber || '—'}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <div class="small text-muted" style="margin-top:10px;">${result.count} entr${result.count === 1 ? 'y' : 'ies'} shown (max 500)</div>
+            `;
+            } catch (e) {
+                document.getElementById('auditLogList').innerHTML = `<div class="text-danger small">${e.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

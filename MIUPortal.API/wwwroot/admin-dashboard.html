@@ -1,0 +1,1182 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIU Portal - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/lib/bootstrap-icons/bootstrap-icons.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        body {
+            background: #f4f6f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===================== SIDEBAR ===================== */
+       
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark, var(--primary-color)) 100%);
+            color: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 150;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        .sidebar-header {
+            flex-shrink: 0;
+            padding: 20px 20px 18px 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-logo {
+            width: 70%;
+            height: 70%;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+       
+        .sidebar-menu-scroll {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 18px 20px;
+        }
+
+           
+            .sidebar-menu-scroll::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu-scroll::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .sidebar-menu-scroll::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.25);
+                border-radius: 10px;
+            }
+
+                .sidebar-menu-scroll::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.4);
+                }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+            .sidebar-menu li {
+                margin-bottom: 8px;
+            }
+
+            .sidebar-menu a {
+                color: white;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 15px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                font-size: 14.5px;
+            }
+
+                .sidebar-menu a i {
+                    font-size: 16px;
+                    width: 18px;
+                    text-align: center;
+                    flex-shrink: 0;
+                }
+
+                .sidebar-menu a:hover {
+                    background: rgba(255,255,255,0.15);
+                    padding-left: 20px;
+                }
+
+                .sidebar-menu a.active {
+                    background: rgba(255,255,255,0.25);
+                    padding-left: 20px;
+                    font-weight: 600;
+                    box-shadow: inset 3px 0 0 white;
+                }
+
+       
+        .logout-btn {
+            flex-shrink: 0;
+            padding: 18px 20px;
+            border-top: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+            .logout-btn button {
+                width: 100%;
+                padding: 10px;
+                background: rgba(255,255,255,0.15);
+                color: white;
+                border: 2px solid white;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+                .logout-btn button:hover {
+                    background: white;
+                    color: var(--primary-color);
+                }
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
+            padding: 30px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            contain: layout;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+        }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+        /* ===================== HEADER ===================== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 22px 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+            gap: 10px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+            .header h1 {
+                color: var(--primary-color);
+                font-size: 26px;
+            }
+
+        .admin-info {
+            text-align: right;
+        }
+
+            .admin-info p {
+                font-size: 14px;
+                color: #666;
+                margin: 3px 0;
+            }
+
+            .admin-info #adminName {
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+        .section {
+            display: none;
+        }
+
+            .section.active {
+                display: block;
+            }
+
+        /* ===================== STAT CARDS ===================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            position: relative;
+            background: white;
+            padding: 22px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            text-align: left;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            }
+
+            .stat-card .stat-icon {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                font-size: 22px;
+                opacity: 0.18;
+                color: var(--primary-color);
+            }
+
+            .stat-card h3 {
+                color: #8a94a6;
+                font-size: 12.5px;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                font-weight: 600;
+            }
+
+            .stat-card .number {
+                font-size: 32px;
+                font-weight: 700;
+                color: var(--primary-color);
+                line-height: 1;
+            }
+
+            .stat-card.warning {
+                border-left-color: #f39c12;
+            }
+
+                .stat-card.warning .number {
+                    color: #f39c12;
+                }
+
+                .stat-card.warning .stat-icon {
+                    color: #f39c12;
+                    opacity: 0.25;
+                }
+
+            .stat-card.success .number {
+                color: #27ae60;
+            }
+
+            .stat-card.success {
+                border-left-color: #27ae60;
+            }
+
+                .stat-card.success .stat-icon {
+                    color: #27ae60;
+                    opacity: 0.25;
+                }
+
+            .stat-card.info .number {
+                color: #2980b9;
+            }
+
+            .stat-card.info {
+                border-left-color: #2980b9;
+            }
+
+                .stat-card.info .stat-icon {
+                    color: #2980b9;
+                    opacity: 0.25;
+                }
+
+            .stat-card.purple .number {
+                color: #8e44ad;
+            }
+
+            .stat-card.purple {
+                border-left-color: #8e44ad;
+            }
+
+                .stat-card.purple .stat-icon {
+                    color: #8e44ad;
+                    opacity: 0.25;
+                }
+
+        .content-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .section-header h2 {
+                color: var(--primary-color);
+                font-size: 21px;
+            }
+
+            .section-header p {
+                color: #7f8c8d;
+                font-size: 13px;
+                margin-top: 4px;
+            }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .filter-btn.active {
+                background: var(--primary-color);
+                color: white;
+            }
+
+            .filter-btn:hover {
+                background: var(--primary-color);
+                color: white;
+            }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            contain: layout;
+            border-radius: 8px;
+        }
+
+        .applications-table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+        }
+
+            .applications-table thead {
+                background: #f9f9f9;
+            }
+
+            .applications-table th {
+                padding: 15px;
+                text-align: left;
+                color: white;
+                background: var(--primary-color);
+                font-weight: 600;
+                border-bottom: 2px solid #e0e0e0;
+            }
+
+            .applications-table td {
+                padding: 15px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .applications-table tr:hover {
+                background: #f9f9f9;
+            }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-view, .btn-approve, .btn-reject {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background: var(--primary-color);
+            color: white;
+        }
+
+            .btn-view:hover {
+                background: var(--primary-dark);
+            }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+            .btn-approve:hover {
+                background: #218838;
+            }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+            .btn-reject:hover {
+                background: #c82333;
+            }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+            .modal.show {
+                display: block !important;
+            }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+            .modal-header h2 {
+                color: var(--primary-color);
+                margin: 0;
+            }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+            .close-btn:hover {
+                color: #333;
+            }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+            .detail-row label {
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            flex-direction: column;
+        }
+
+            .modal-actions textarea {
+                width: 100%;
+                padding: 10px;
+                border: 2px solid #e0e0e0;
+                border-radius: 6px;
+                font-family: inherit;
+                resize: vertical;
+            }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+            .message.show {
+                display: block;
+            }
+
+            .message.success {
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .message.error {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main-content {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+                max-width: calc(100% - 210px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar {
+                width: 260px;
+                transform: translateX(-100%);
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 70px 15px 20px 15px;
+            }
+
+            .applications-table {
+                font-size: 12px;
+                min-width: 600px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 65px 10px 20px 10px;
+            }
+
+            .applications-table {
+                min-width: 480px;
+            }
+
+                .applications-table th,
+                .applications-table td {
+                    padding: 8px;
+                }
+
+            .content-section, .section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+
+            <!-- PINNED TOP -->
+            <div class="sidebar-header">
+                <img src="images/miu-logo.jpg" alt="MIU Logo" class="sidebar-logo">
+                <h1>MIU</h1>
+                <p>Admin Portal</p>
+            </div>
+
+            <!-- SCROLLS INDEPENDENTLY -->
+            <div class="sidebar-menu-scroll">
+                <ul class="sidebar-menu">
+                    <li><a class="menu-link active" data-section="dashboard" onclick="navigateToSection('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li><a class="menu-link" data-section="applications" onclick="navigateToSection('applications')"><i class="bi bi-clipboard-data"></i> Applications</a></li>
+                    <li><a class="menu-link" data-section="students" onclick="navigateToSection('students')"><i class="bi bi-people"></i> Students</a></li>
+                    <li><a class="menu-link" data-section="results" onclick="navigateToSection('results')"><i class="bi bi-bar-chart-line"></i> Results</a></li>
+                    <li><a class="menu-link" data-section="payments" onclick="navigateToSection('payments')"><i class="bi bi-credit-card"></i> Payments</a></li>
+                    <li><a class="menu-link" data-section="documents" onclick="navigateToSection('documents')"><i class="bi bi-file-earmark-text"></i> Documents</a></li>
+                    <li><a class="menu-link" data-section="lecturers" onclick="navigateToSection('lecturers')"><i class="bi bi-person-workspace"></i> Lecturers</a></li>
+                    <li><a class="menu-link" data-section="assignments" onclick="navigateToSection('assignments')"><i class="bi bi-journal-bookmark"></i> Lecturer Course Assignment</a></li>
+                    <li><a class="menu-link" data-section="roles" onclick="navigateToSection('roles')"><i class="bi bi-person-badge"></i> Role Assignment</a></li>
+                </ul>
+            </div>
+
+            <!-- PINNED BOTTOM -->
+            <div class="logout-btn">
+                <button onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Admin Dashboard</h1>
+                <div class="admin-info">
+                    <p id="adminName">Welcome, Admin</p>
+                    <p id="adminRole">Administrator</p>
+                </div>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <div id="dashboard-section" class="section active">
+                <div id="statsLoading" style="text-align:center; padding:20px; color:#666;">
+                    ⏳ Loading statistics, please wait...
+                </div>
+
+                <div class="stats-grid" id="statsGrid" style="display:none;">
+                    <div class="stat-card info">
+                        <i class="bi bi-clipboard-data stat-icon"></i>
+                        <h3>Total Applications</h3>
+                        <div class="number" id="totalApplications">0</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <i class="bi bi-hourglass-split stat-icon"></i>
+                        <h3>Pending Applications</h3>
+                        <div class="number" id="pendingApplications">0</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <i class="bi bi-people stat-icon"></i>
+                        <h3>Total Students</h3>
+                        <div class="number" id="totalStudents">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-person-workspace stat-icon"></i>
+                        <h3>Total Lecturers</h3>
+                        <div class="number" id="totalLecturers">0</div>
+                    </div>
+                    <div class="stat-card success">
+                        <i class="bi bi-person-check stat-icon"></i>
+                        <h3>Active Lecturers</h3>
+                        <div class="number" id="activeLecturers">0</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <i class="bi bi-person-x stat-icon"></i>
+                        <h3>Inactive Lecturers</h3>
+                        <div class="number" id="inactiveLecturers">0</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <i class="bi bi-mortarboard stat-icon"></i>
+                        <h3>Total Deans</h3>
+                        <div class="number" id="totalDeans">0</div>
+                    </div>
+                    <div class="stat-card warning" id="facultiesWithoutDeanCard" style="cursor:pointer;"
+                         onclick="document.getElementById('facultiesWithoutDeanPanel').scrollIntoView({behavior:'smooth'})">
+                        <i class="bi bi-exclamation-triangle stat-icon"></i>
+                        <h3>Faculties Without a Dean</h3>
+                        <div class="number" id="facultiesWithoutDean">0</div>
+                    </div>
+                    <div class="stat-card info">
+                        <i class="bi bi-file-earmark-check stat-icon"></i>
+                        <h3>Academic Registrars</h3>
+                        <div class="number" id="totalRegistrars">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-journal-bookmark stat-icon"></i>
+                        <h3>Course Assignments</h3>
+                        <div class="number" id="totalCourseAssignments">0</div>
+                    </div>
+                </div>
+                <div id="facultiesWithoutDeanPanel" class="content-section" style="display:none; margin-top:20px; border-left:4px solid #f39c12;"></div>
+            </div>
+
+            <div id="applications-section" class="section">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-clipboard-data"></i> Applications Review</h2>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="filter-btn active" onclick="filterApplications('all')">All</button>
+                            <button class="filter-btn" onclick="filterApplications('PENDING_REVIEW')">Pending</button>
+                            <button class="filter-btn" onclick="filterApplications('APPROVED')">Approved</button>
+                            <button class="filter-btn" onclick="filterApplications('REJECTED')">Rejected</button>
+                        </div>
+                    </div>
+                    <div id="applicationsContainer">Loading applications...</div>
+                </div>
+            </div>
+
+            <div id="students-section" class="section"></div>
+
+            <div id="results-section" class="section"></div>
+
+            <div id="payments-section" class="section"></div>
+
+            <div id="documents-section" class="section"></div>
+
+            <!-- ===================== LECTURERS ===================== -->
+
+            <div id="lecturers-section" class="section">
+
+                <div class="content-section">
+
+                    <div class="section-header">
+                        <h2><i class="bi bi-person-workspace"></i> Lecturer Management</h2>
+                    </div>
+
+                    <!-- Create Lecturer -->
+
+                    <div style="background:honeydew; padding:20px; border-radius:16px; margin:0 auto 20px auto; max-width:100%;">
+
+                        <h2 style="margin-bottom:20px; color:var(--primary-color); font-size:19px;">
+                            <i class="bi bi-person-plus"></i> Create Lecturer
+                        </h2>
+
+                        <div style="display:flex; flex-direction:column; gap:15px;">
+
+                            <input type="text"
+                                   id="lecFirstName"
+                                   placeholder="First Name"
+                                   style="width:100%; max-width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="text"
+                                   id="lecLastName"
+                                   placeholder="Last Name"
+                                   style="width:100%; max-width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="email"
+                                   id="lecEmail"
+                                   placeholder="Email"
+                                   style="width:100%; max-width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="password"
+                                   id="lecPassword"
+                                   placeholder="Temporary Password"
+                                   style="width:100%; max-width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="text"
+                                   id="lecPhone"
+                                   placeholder="Phone Number"
+                                   style="width:100%; max-width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <select id="lecFaculty"
+                                    style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <option value="">Loading faculties...</option>
+                            </select>
+
+                        </div>
+
+                        <button onclick="createLecturer()"
+                                style="margin-top:20px; padding:10px 20px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
+                            ➕ Create Lecturer
+                        </button>
+
+                        <div id="lecMsg" style="margin-top:10px; font-weight:600;"></div>
+
+                    </div>
+
+                    <!-- Lecturer List -->
+                    <div class="content-section">
+
+                        <div class="table-toolbar">
+                            <h3>Lecturers List</h3>
+                            <div class="search-container">
+                                <div class="search-wrapper">
+                                    <span class="search-icon">🔍</span>
+                                    <input id="lecturerSearch"
+                                           class="search-box"
+                                           placeholder="Search by name, email, faculty, or status..."
+                                           onkeyup="filterLecturers()">
+                                    <span id="lecturerResultCount" class="result-counter">0 lecturers</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin:15px 0;">
+                            <button class="btn-approve" style="padding:8px 14px;" onclick="setAllLecturersStatus('Active')">
+                                ✅ Activate All
+                            </button>
+                            <button class="btn-reject" style="padding:8px 14px;" onclick="setAllLecturersStatus('Inactive')">
+                                🚫 Deactivate All
+                            </button>
+                        </div>
+
+                        <div id="lecturerTable">
+                            Loading lecturers...
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ===================== COURSE ASSIGNMENTS ===================== -->
+
+            <div id="assignments-section" class="section">
+
+                <div class="content-section">
+
+                    <div class="section-header">
+                        <h2><i class="bi bi-journal-bookmark"></i> Lecturer Course Assignment</h2>
+                        <p>Assign lecturers to programmes and courses.</p>
+                    </div>
+
+                    <div class="assignment-card">
+
+                        <div class="assignment-grid">
+
+                            <div class="form-group">
+                                <label>Faculty</label>
+                                <select id="assignFaculty">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>School</label>
+                                <select id="assignSchool" disabled>
+                                    <option>Select Faculty First</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Programme</label>
+                                <select id="assignProgramme" disabled>
+                                    <option>Select School First</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Course</label>
+                                <select id="assignCourse" disabled>
+                                    <option>Select Programme First</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Lecturer</label>
+                                <select id="assignLecturer" disabled>
+                                    <option>Select Faculty First</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Academic Year</label>
+                                <select id="assignYear"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Semester</label>
+                                <select id="assignSemester">
+                                    <option value="1">Semester I</option>
+                                    <option value="2">Semester II</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <button id="btnAssignCourse"
+                                class="btn btn-primary"
+                                onclick="assignCourse()">
+                            Assign Course
+                        </button>
+
+                        <div id="assignMsg" class="form-message"></div>
+
+                    </div>
+
+                </div>
+
+                <!-- Assignment Table -->
+
+                <div class="content-section">
+
+                    <div class="table-toolbar">
+                        <h3>Current Assignments</h3>
+                        <div class="search-container">
+                            <div class="search-wrapper">
+                                <span class="search-icon">🔍</span>
+                                <input id="assignmentSearch"
+                                       class="search-box"
+                                       placeholder="Search lecturer, faculty, programme or course..."
+                                       onkeyup="filterAssignments()">
+                                <span id="assignmentResultCount" class="result-counter">0 results</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="assignmentTable">
+                        Loading assignments...
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ===================== ROLE ASSIGNMENT ===================== -->
+
+            <div id="roles-section" class="section">
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-person-badge"></i> Dean Assignment</h2>
+                        <p>Promote an existing Lecturer to Dean of their Faculty.</p>
+                    </div>
+
+                    <div style="background:honeydew; padding:20px; border-radius:16px; margin-bottom:20px;">
+                        <div style="display:flex; flex-direction:column; gap:15px; max-width:500px;">
+
+                            <div class="form-group">
+                                <label>Lecturer</label>
+                                <select id="promoteLecturerSelect" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                    <option value="">Loading lecturers...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Faculty (only needed if the lecturer has none assigned yet)</label>
+                                <select id="promoteFacultySelect" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                    <option value="">Use lecturer's existing faculty</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <button onclick="promoteToDean()"
+                                style="margin-top:20px; padding:10px 20px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
+                            <i class="bi bi-mortarboard-fill"></i> Promote to Dean
+                        </button>
+
+                        <div id="promoteDeanMsg" style="margin-top:10px; font-weight:600;"></div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="table-toolbar">
+                            <h3>Current Deans</h3>
+                        </div>
+                        <div id="deansTable">Loading deans...</div>
+                    </div>
+                </div>
+
+                <div class="content-section" style="margin-top:20px;">
+                    <div class="section-header">
+                        <h2><i class="bi bi-file-earmark-check"></i> Academic Registrar Accounts</h2>
+                        <p>Create login accounts for Academic Registrar staff.</p>
+                    </div>
+
+                    <div style="background:honeydew; padding:20px; border-radius:16px; margin-bottom:20px;">
+                        <div style="display:flex; flex-direction:column; gap:15px; max-width:500px;">
+
+                            <input type="text" id="regFirstName" placeholder="First Name"
+                                   style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="text" id="regLastName" placeholder="Last Name"
+                                   style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="email" id="regEmail" placeholder="Email"
+                                   style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="password" id="regPassword" placeholder="Temporary Password"
+                                   style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                            <input type="text" id="regPhone" placeholder="Phone Number"
+                                   style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+                        </div>
+
+                        <button onclick="createAcademicRegistrar()"
+                                style="margin-top:20px; padding:10px 20px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
+                            <i class="bi bi-person-plus-fill"></i> Create Academic Registrar
+                        </button>
+
+                        <div id="createRegistrarMsg" style="margin-top:10px; font-weight:600;"></div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="table-toolbar">
+                            <h3>Academic Registrar Accounts</h3>
+                        </div>
+                        <div id="registrarsTable">Loading academic registrars...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="detailModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Application Details</h2>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div id="modalBody"></div>
+                    <div id="modalActions"></div>
+                </div>
+            </div>
+
+            <div id="rejectPaymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 10000;">
+                <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; width: 90%;">
+                    <h3 style="margin-top: 0; color: #2c3e50;">Reject Payment</h3>
+                    <p style="color: #7f8c8d;">Please provide a reason for rejecting this payment:</p>
+
+                    <textarea id="paymentRejectionReason"
+                              style="width: 100%; min-height: 120px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-family: Arial, sans-serif; font-size: 14px; resize: vertical;"
+                              placeholder="Enter rejection reason..."></textarea>
+
+                    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="submitRejectPayment()"
+                                style="flex: 1; min-width:140px; padding: 12px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            Submit Rejection
+                        </button>
+                        <button onclick="closeRejectPaymentModal()"
+                                style="flex: 1; min-width:140px; padding: 12px 20px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rejectApplicationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 10000;">
+                <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; width: 90%;">
+                    <h3 style="margin-top: 0; color: #2c3e50;">Reject Application</h3>
+                    <p style="color: #7f8c8d;">Please provide a reason for rejecting this application:</p>
+
+                    <textarea id="appRejectionReason"
+                              style="width: 100%; min-height: 120px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-family: Arial, sans-serif; font-size: 14px; resize: vertical;"
+                              placeholder="Enter rejection reason..."></textarea>
+
+                    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="submitRejectApplication()"
+                                style="flex: 1; min-width:140px; padding: 12px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            Submit Rejection
+                        </button>
+                        <button onclick="closeRejectApplicationModal()"
+                                style="flex: 1; min-width:140px; padding: 12px 20px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script src="js/admin-roles.js"></script>
+</body>
+</html>
