@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MIUPortal.API.Data;
@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ========== ADD SERVICES TO THE CONTAINER ==========
 
-// Database
+// Database Connection (MySQL / MariaDB via Pomelo)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MIUContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
@@ -19,6 +19,7 @@ builder.Services.AddDbContext<MIUContext>(options =>
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
 var tokenExpiryMinutes = int.Parse(jwtSettings["TokenExpiryMinutes"] ?? "120");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -32,7 +33,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
 
-       
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -51,47 +51,44 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// ========== CORS ==========
+// ========== CORS CONFIGURATION ==========
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policyBuilder =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policyBuilder.AllowAnyOrigin()
+                     .AllowAnyMethod()
+                     .AllowAnyHeader();
     });
 });
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 
-// Email Services
+// ========== APPLICATION SERVICES REGISTRATION ==========
+
+// Email & Notification Services
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IDocumentEmailService, DocumentEmailService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 
-
-// Document Generation Services
+// Document Generation & Grade Upload Services
 builder.Services.AddScoped<AdmissionLetterService>();
 builder.Services.AddScoped<SemesterRegistrationCardService>();
 builder.Services.AddScoped<ExaminationPermitService>();
 builder.Services.AddScoped<PaymentReceiptService>();
 builder.Services.AddScoped<IGradeUploadService, GradeUploadService>();
+
+// Core Security & Utilities
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuditLogService>();
 builder.Services.AddScoped<FeeScopingService>();
-
-
-
-//QRCODE
 builder.Services.AddScoped<QrCodeService>();
 
-// ========== CUSTOM SERVICES - REGISTER HERE ==========
-
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IDocumentEmailService, DocumentEmailService>();
-builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+// Workflow & Domain Services
 builder.Services.AddScoped<IIntentService, IntentService>();
 builder.Services.AddScoped<PaymentFinalizationService>();
 builder.Services.AddScoped<PassportPhotoService>();
@@ -99,48 +96,39 @@ builder.Services.AddScoped<StudentEligibilityService>();
 builder.Services.AddScoped<StudentPromotionService>();
 builder.Services.AddScoped<SemesterProgressionService>();
 
-// AI Chatbot
+// AI Chatbot & Knowledge Services
 builder.Services.AddHttpClient<IOpenRouterService, OpenRouterService>();
 builder.Services.AddScoped<IMIUChatbotService, MIUChatbotService>();
-builder.Services.AddHttpClient(); 
 builder.Services.AddScoped<IUniversityKnowledgeService, UniversityKnowledgeService>();
 
-
-
-// Document Generation Services
-builder.Services.AddScoped<AdmissionLetterService>();
-builder.Services.AddScoped<SemesterRegistrationCardService>();
-builder.Services.AddScoped<ExaminationPermitService>();
-builder.Services.AddScoped<PaymentReceiptService>();
-
-// ========== NEW: GRADE UPLOAD SERVICE ==========
-builder.Services.AddScoped<IGradeUploadService, GradeUploadService>();
 // ========== BUILD THE APPLICATION ==========
 var app = builder.Build();
 
 // ========== CONFIGURE THE HTTP REQUEST PIPELINE ==========
 
-if (app.Environment.IsDevelopment())
+// Enable Swagger UI across all environments (including Render production)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MIU Portal API v1");
+    c.RoutePrefix = "swagger"; // Access UI at /swagger
+});
 
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// ========== USE CORS ==========
+// Enable CORS (Must precede UseAuthentication)
 app.UseCors("AllowAll");
 
-// ========== USE AUTHENTICATION ==========
+// Enable Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ========== MAP CONTROLLERS ==========
+// Map Controller Endpoints
 app.MapControllers();
 
-// ========== CREATE REQUIRED FOLDERS ==========
+// ========== CREATE REQUIRED FILE DIRECTORIES ==========
 var webroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 var folders = new[]
 {
@@ -152,6 +140,7 @@ var folders = new[]
     Path.Combine(webroot, "uploads", "timetables"),
     Path.Combine(webroot, "qr-codes")
 };
+
 foreach (var folder in folders)
 {
     if (!Directory.Exists(folder))
